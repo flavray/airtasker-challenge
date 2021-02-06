@@ -4,6 +4,9 @@ CODE := airtasker_challenge
 # Directory containing tests for the application
 TEST_CODE := tests
 
+# Tag for the local docker image
+DOCKER_TAG := airtasker-challenge
+
 # Expected the app.py file to be present in ${CODE}
 FLASK_APP := ${CODE}.app
 
@@ -30,3 +33,11 @@ lint: dev-env
 .PHONY: test
 test: lint
 	pipenv run pytest
+
+.PHONY: cook-image
+cook-image:
+	docker build -t ${DOCKER_TAG} .
+
+.PHONE: docker-run
+docker-run: cook-image
+	docker run -p 5000:5000 ${DOCKER_TAG}

@@ -7,6 +7,8 @@ Hello, world.
 This repository uses [Pipenv](https://pipenv.pypa.io/en/latest/) to install
 dependencies and run the project.
 
+## Local installation
+
 In order to install it, please run:
 
     $ pip install --user pipenv
@@ -16,9 +18,16 @@ install it:
 
     $ sudo easy_install pip
 
+### Docker installation
 
-TODO: Dockerfile
+Alternately, there are Makefile targets to build and run a dockerised version
+of the project.
 
+    $ make cook-image
+    $ make docker-run
+
+This will build and run the project, the API will be accessible on the host's
+port `5000`.
 
 ## Running
 
