@@ -86,8 +86,7 @@ class RateLimiter:
         :returns: the permit count in the current bucket (+ 1 to include the new permit).
         """
         current_key: str = self._store_key(requestor, now_s)
-        # TODO: key expiration
-        return self.store.incr_and_get(current_key)
+        return self.store.incr_and_get(current_key, ttl_s=self.period_s)
 
     def _previous_permits(self, requestor: str, now_s: int) -> Dict[int, int]:
         """

@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    environment:
+        - MEMCACHE_CONNECTION_STRING=memcached:11211
+    ports:
+      # Map the container port 5000 to the host port 5000
+      - "5000:5000"
+  memcached:
+    image: "memcached:alpine"
+    expose:
+        # The default memcached port, also exposed by memcached:alpine
+        # See https://github.com/docker-library/memcached/blob/294c4e53b4bf3722f09a71bdc0ae2f3772ae4f8d/alpine/Dockerfile#L68
+        - "11211"
