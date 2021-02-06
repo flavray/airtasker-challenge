@@ -5,13 +5,13 @@ import mock
 import pytest
 
 from airtasker_challenge.rate_limiter.rate_limiter import RateLimiter
-from airtasker_challenge.rate_limiter.store import Store
+from airtasker_challenge.rate_limiter.store import MemoryStore
 
 
 class TestRateLimiter:
     @pytest.fixture
     def limiter(self) -> RateLimiter:
-        return RateLimiter(permits=100, period_s=60 * 60, store=Store())
+        return RateLimiter(permits=100, period_s=60 * 60, store=MemoryStore())
 
     def test_single_requestor(self, limiter: RateLimiter) -> None:
         for _ in range(100):
@@ -34,7 +34,7 @@ class TestRateLimiter:
         limiter: RateLimiter = RateLimiter(
             permits=permits,
             period_s=60 * 60,
-            store=Store(),
+            store=MemoryStore(),
         )
 
         for _ in range(permits):
@@ -83,7 +83,7 @@ class TestRateLimiter:
         limiter: RateLimiter = RateLimiter(
             permits=-1,
             period_s=60 * 60,
-            store=Store(),
+            store=MemoryStore(),
         )
 
         for _ in range(1000):
@@ -157,7 +157,7 @@ class TestRateLimiter:
         limiter: RateLimiter = RateLimiter(
             permits=1,
             period_s=period_s,
-            store=Store(),
+            store=MemoryStore(),
         )
 
         now_s: int = 42
