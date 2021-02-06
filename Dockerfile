@@ -8,6 +8,10 @@ ENV FLASK_RUN_PORT=5000
 
 EXPOSE 5000
 
+# Install libmemcached to use pylibmc
+RUN apk add --no-cache --virtual \
+        .build-deps build-base libmemcached-dev linux-headers zlib-dev
+
 RUN pip install pipenv
 
 WORKDIR /code
