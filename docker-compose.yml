@@ -3,6 +3,7 @@ services:
   app:
     build: .
     environment:
+        - STORE_BACKEND=memcache
         - MEMCACHE_CONNECTION_STRING=memcached:11211
     ports:
       # Map the container port 5000 to the host port 5000

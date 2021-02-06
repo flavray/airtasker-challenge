@@ -38,6 +38,18 @@ test: lint
 cook-image:
 	docker build -t ${DOCKER_TAG} .
 
-.PHONE: docker-run
+.PHONY: docker-run
 docker-run: cook-image
 	docker run -p 5000:5000 ${DOCKER_TAG}
+
+.PHONY: docker-compose-build
+docker-compose-build:
+	docker-compose build
+
+.PHONY: docker-compose-run
+docker-compose-run: docker-compose-build
+	docker-compose up
+
+.PHONY: docker-compose-stop
+docker-compose-stop:
+	docker-compose down
