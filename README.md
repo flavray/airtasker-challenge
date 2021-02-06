@@ -2,6 +2,14 @@
 
 Hello, world.
 
+
+This repository contains an implementation of a rate-limiting module that stops
+a particular requestor from making too many HTTP requests within a particular
+period of time.
+
+
+This module is written in Python.
+
 ## Installation
 
 ### docker-compose (recommended)
@@ -25,6 +33,24 @@ This will:
 Example:
 
 ```
+>> curl http://0.0.0.0:5000/
+Hello, world!
+```
+
+Example 2:
+
+```
+# Make 100 sequential calls to the API endpoint. They all succeed.
+>> for i in `seq 100`; do curl --silent http://127.0.0.1:5000/ > /dev/null; done
+
+# Subsequent calls fail.
+>> curl http://0.0.0.0:5000/
+Rate limit exceeded. Try again in #3595 seconds%
+
+>> curl http://0.0.0.0:5000/
+Rate limit exceeded. Try again in #788 seconds
+
+# After more than 1h, calls succeed again.
 >> curl http://0.0.0.0:5000/
 Hello, world!
 ```
@@ -107,9 +133,72 @@ These stages can also be run on their own via
 
     $ make lint
 
-## Design
+## Code Structure
 
-To mention:
-* memcache error = do not rate limit (return {} and 0). conscious trade-off:
-  issues with infra should not impact users. risk for underlying services
-* going further: could fall-back to MemoryStore upon errors
+* The entrypoint to the application is located in
+  [airtasker_challenge/app.py](airtasker_challenge/app.py).  This is a simple
+  [Flask](https://flask.palletsprojects.com/en/1.1.x/) application, with a
+  single endpoint (`/`).
+
+The endpoint is rate-limited to 100 permits per hour, for every IP address, as
+a cheap way to identify requestors. User identification could be done
+differently (e.g: user api tokens) and easily plugged in the rate limiter.
+
+
+* The rate limiter implementation is located in
+  [airtasker_challenge/rate_limiter](airtasker_challenge/rate_limiter). It
+  contains a Flask route decorator `@rate_limited` that is used to limit access
+  to any Flask route (in our case, `/`).
+
+
+* There is a test suite located in [tests/](tests/), which contains unit tests.
+
+
+## Rate Limiter design
+
+The rate limiter is bucketed, in 1-second buckets and uses a sliding window to
+compute the number of acquisitions over the period of time configured (1h
+here).
+
+The implementation is backed by [memcache](https://memcached.org), to store and
+distribute atomic counters. This means that multiple web workers can share the
+rate limiter if they connect to the same memcache server(s). I could have used
+Redis, a SQL database, or many other systems. memcached is simple to use and
+deploy, with a lightweight client library.
+
+I made the conscious decision to allow every request to pass if any issue with
+memcache occurs (e.g: memcache is down, corrupted, etc...). The assumption is
+that user experience should prevail, and running a rate limiter is a risk (to
+allow "offenders" to over-use, and a risk to put any infrastructure under too
+much load), but the risk of denying all requests from all users ("offender" or
+not) seemed too high.
+It is just a trade-off, and the implementation in
+[airtasker_challenge/rate_limiter/store.py](airtasker_challenge/rate_limiter/store.py)
+can easily be changed to return errors.
+
+A further improvement could be to fallback to an in-memory store if anything
+wrong occurred with memcache, and backoff from memcache for a few
+(millis-)seconds.
+
+
+As documented in
+[airtasker_challenge/rate_limiter/rate_limiter.py](airtasker_challenge/rate_limiter/rate_limiter.py),
+the buckets are 1-second long. This means that 3,600 keys need to be retrieved
+from the store every time a request is made. Memcache is quite fast, but this
+could become a bottleneck.
+
+Ways to improve this could be to:
+
+- Cache in-memory counters from buckets that are more than a couple of seconds
+  old (there will be immutable)
+- Increase the bucket duration (10 seconds? 1 minute? depends on the load).
+  This will force to use approximations for the cooldown period, but reduce the
+  number of keys to retrieve.
+
+
+Configuration of the application (which store backend to use, memcache
+connection string) is done via environment variables (`STORE_BACKEND`,
+`MEMCACHE_CONNECTION_STRING`). This is easy to set and tweak both in a terminal
+environment and a docker environment, and easy to read from the application.
+This could have been a configuration file, but would have been less explicit
+than environment variables.
