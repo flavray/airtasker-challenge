@@ -79,3 +79,13 @@ class TestMemcacheStore:
         ) as mock_incr_and_get:
             assert store.incr_and_get("key") == 0
             assert mock_incr_and_get.call_count == 1
+
+    def test_decr_exception(self, store: MemcacheStore) -> None:
+        with mock.patch.object(
+            store.client,
+            "decr",
+            side_effect=pylibmc.Error("an error occurred"),
+            autospec=True,
+        ) as mock_decr:
+            store.decr("key")
+            assert mock_decr.call_count == 1

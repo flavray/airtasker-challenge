@@ -151,6 +151,55 @@ class TestRateLimiter:
         ):
             assert limiter._previous_permits("requestor", now_s) == expected
 
+    @pytest.mark.parametrize(
+        "now_s,period_s,previous_permits,expected_cooldown_s",
+        [
+            (
+                7,
+                10,
+                {
+                    0: 1,
+                    1: 4,
+                    4: 5,
+                },
+                3,  # all 10 permits already acquired (seconds 0, 1 & 4) => wait 3 seconds
+            ),
+            (
+                7,
+                10,
+                {
+                    1: 4,
+                    4: 6,
+                },
+                4,  # all 10 permits already acquired (seconds 1 & 4) => wait 4 seconds
+            ),
+            (
+                0,
+                10,
+                {
+                    0: 10,
+                },
+                10,  # all 10 permits already acquired (second 0), at the same second => wait 10 seconds
+            ),
+        ],
+    )
+    def test_cooldown_period_s(
+        self,
+        now_s: int,
+        period_s: int,
+        previous_permits: Dict[int, int],
+        expected_cooldown_s: int,
+    ) -> None:
+        limiter = RateLimiter(
+            permits=10,
+            period_s=period_s,
+            store=MemoryStore(),
+        )
+
+        cooldown_s: int = limiter._cooldown_period_s(now_s, previous_permits)
+
+        assert cooldown_s == expected_cooldown_s
+
     def test_previous_store_keys(self) -> None:
         period_s: int = 5
 

@@ -20,6 +20,9 @@ class Store:
     def incr_and_get(self, key: str, ttl_s: int = 0) -> int:
         raise NotImplemented
 
+    def decr(self, key: str) -> None:
+        raise NotImplemented
+
 
 class MemcacheStore(Store):
     """
@@ -86,6 +89,12 @@ class MemcacheStore(Store):
             self.log.exception(f"Error incrementing key: '{key}', assuming null")
             return 0
 
+    def decr(self, key: str) -> None:
+        try:
+            self.client.decr(key)
+        except pylibmc.Error:
+            self.log.exception(f"Error decrementing key: '{key}'")
+
 
 class MemoryStore(Store):
     """
@@ -104,3 +113,7 @@ class MemoryStore(Store):
     def incr_and_get(self, key: str, ttl_s: int = 0) -> int:
         self.counts[key] += 1
         return self.counts[key]
+
+    def decr(self, key: str) -> None:
+        if key in self.counts:
+            self.counts[key] -= 1
