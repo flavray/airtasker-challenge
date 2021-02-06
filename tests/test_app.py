@@ -8,8 +8,10 @@ class TestApp:
 
     @pytest.fixture
     def client(self) -> FlaskClient:
-        return app.test_client()
+        yield app.test_client()
 
-    def test_hello(self, client: FlaskClient) -> None:
-        response = client.get("/")
-        assert response.status_code == 200
+    def test_rate_limited(self, client: FlaskClient) -> None:
+        for _ in range(100):
+            assert client.get("/").status_code == 200
+
+        assert client.get("/").status_code == 429
