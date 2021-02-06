@@ -34,6 +34,10 @@ class MemcacheStore(Store):
     """
 
     def __init__(self, connection_string: str) -> None:
+        """
+        Create a new MemcacheStore instance, connecting via the given
+        `connection_string`.
+        """
         self.log: logging.Logger = logging.getLogger(self.__class__.__name__)
         self.client: pylibmc.Client = pylibmc.Client(
             [connection_string],
