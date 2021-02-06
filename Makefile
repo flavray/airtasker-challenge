@@ -1,6 +1,9 @@
 # Directory containing the application to run
 CODE := airtasker_challenge
 
+# Directory containing tests for the application
+TEST_CODE := tests
+
 # Expected the app.py file to be present in ${CODE}
 FLASK_APP := ${CODE}.app
 
@@ -21,8 +24,8 @@ run: env
 
 .PHONY: lint
 lint: dev-env
-	pipenv run black ${CODE}
-	pipenv run mypy ${CODE}
+	pipenv run black ${CODE} ${TEST_CODE}
+	pipenv run mypy ${CODE} ${TEST_CODE}
 
 .PHONY: test
 test: lint

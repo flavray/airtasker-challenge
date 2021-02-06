@@ -9,7 +9,6 @@ from airtasker_challenge.rate_limiter.store import Store
 
 
 class TestRateLimiter:
-
     @pytest.fixture
     def limiter(self) -> RateLimiter:
         return RateLimiter(permits=100, period_s=60 * 60, store=Store())
@@ -44,7 +43,8 @@ class TestRateLimiter:
         assert limiter.try_acquire("requestor") > 0
 
     def test_permits_refused_multiple_times(
-        self, limiter: RateLimiter,
+        self,
+        limiter: RateLimiter,
     ) -> None:
         for _ in range(100):
             limiter.try_acquire("requestor")
@@ -55,7 +55,9 @@ class TestRateLimiter:
 
     @mock.patch("time.time")
     def test_permits_time_passed(
-        self, mock_time: mock.Mock, limiter: RateLimiter,
+        self,
+        mock_time: mock.Mock,
+        limiter: RateLimiter,
     ) -> None:
         # mock_time returns seconds since epoch
 
@@ -79,7 +81,9 @@ class TestRateLimiter:
 
     def test_negative_permits(self) -> None:
         limiter: RateLimiter = RateLimiter(
-            permits=-1, period_s=60 * 60, store=Store(),
+            permits=-1,
+            period_s=60 * 60,
+            store=Store(),
         )
 
         for _ in range(1000):
@@ -151,13 +155,16 @@ class TestRateLimiter:
         period_s: int = 5
 
         limiter: RateLimiter = RateLimiter(
-            permits=1, period_s=period_s, store=Store(),
+            permits=1,
+            period_s=period_s,
+            store=Store(),
         )
 
         now_s: int = 42
 
-        previous_keys: Dict[int, int] = limiter._previous_store_keys(
-            "requestor", now_s,
+        previous_keys: Dict[int, str] = limiter._previous_store_keys(
+            "requestor",
+            now_s,
         )
 
         expected_previous_keys = {
