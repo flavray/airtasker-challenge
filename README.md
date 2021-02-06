@@ -4,9 +4,6 @@ Hello, world.
 
 ## Installation
 
-This repository uses [Pipenv](https://pipenv.pypa.io/en/latest/) to install
-dependencies and run the project.
-
 ### docker-compose (recommended)
 
 There is a [docker-compose.yml](docker-compose.yml) file that allows to install dependencies and run the application in one single command.
@@ -38,19 +35,22 @@ To tear the application down, please run
 
 ### Local installation
 
-In order to install the application locally, you will need pipenv. Please run:
+This repository uses [Pipenv](https://pipenv.pypa.io/en/latest/) to install
+dependencies and run the project.
+
+In order to install the application locally, you will need pipenv. Please run
 
     $ pip install --user pipenv
 
 If `pip` is not installed on your machine, the following should be enough to
-install it:
+install it
 
     $ sudo easy_install pip
 
 ### Docker installation
 
 Alternately, there are Makefile targets to build and run a dockerised version
-of the project. To build a Docker image, please run:
+of the project. To build a Docker image, please run
 
     $ make cook-image
 
@@ -84,9 +84,13 @@ Running the application in a docker container can be done via
 This will build the container if it had not previously been built.
 
 By default, an in-memory rate-limiter will be used (multiple instances will not
-share the rate limiter). `memcache` can be used to share the rate limiter:
+share the rate limiter). `memcache` can be used to share the rate limiter via
 
-    $ docker run -e STORE_BACKEND=memcache -e MEMCACHE_CONNECTION_STRING=<memcache host:memcache port> -t airtasker-challenge
+    $ make cook-image
+    $ docker run -e STORE_BACKEND=memcache -e MEMCACHE_CONNECTION_STRING=<memcache host:memcache port> -p 5000:5000 -t airtasker-challenge
+
+*Note: If memcache is running locally, memcache host needs to be your host's IP
+address (or anything other than localhost, that can make it accessible).*
 
 ## Tests
 
@@ -94,13 +98,12 @@ The codebase comes with a suite of unit tests, which can be run via
 
     $ make test
 
-
 This will also run a couple of lint/format stages.
 
 * [black](https://github.com/psf/black), a code formatter for Python.
 * [mypy](https://github.com/python/mypy), a static type checker for Python.
 
-These stages can also be run on their own via:
+These stages can also be run on their own via
 
     $ make lint
 
