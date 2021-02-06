@@ -3,9 +3,10 @@ from functools import wraps
 from flask import request
 
 from .rate_limiter import RateLimiter
+from .store import Store
 
 
-def rate_limited(permits: int, period_s: int):
+def rate_limited(permits: int, period_s: int, store: Store):
     """
     A Flask decorator to add IP address-based rate limiting for a route.
 
@@ -17,7 +18,7 @@ def rate_limited(permits: int, period_s: int):
     :param period_s: the duration (in seconds) of a period
     """
 
-    limiter = RateLimiter(permits=permits, period_s=period_s)
+    limiter = RateLimiter(permits=permits, period_s=period_s, store=store)
 
     def decorated_rate_limit(func):
         @wraps(func)
