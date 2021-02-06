@@ -8,6 +8,14 @@ from .rate_limiter.store import Store
 
 
 def store_backend() -> Store:
+    """
+    Return a store implementation, based on environment variables.
+
+    If the `STORE_BACKEND` environment variable is set to "memcache",
+    MemcacheStore will be used. Anything else will use MemoryStore.
+
+    :returns: a Store implementation
+    """
     store_backend: str = os.environ.get("STORE_BACKEND", "memory")
     if store_backend == "memcache":
         return MemcacheStore(memcache_connection_string())
