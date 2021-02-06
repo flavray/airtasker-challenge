@@ -75,6 +75,19 @@ share the rate limiter). `memcache` can be used to share the rate limiter:
     $ export MEMCACHE_CONNECTION_STRING=<memcache host:memcache port>  # e.g: 0.0.0.0:11211
     $ make run
 
+### Running in Docker
+
+Running the application in a docker container can be done via
+
+    $ make docker-run
+
+This will build the container if it had not previously been built.
+
+By default, an in-memory rate-limiter will be used (multiple instances will not
+share the rate limiter). `memcache` can be used to share the rate limiter:
+
+    $ docker run -e STORE_BACKEND=memcache -e MEMCACHE_CONNECTION_STRING=<memcache host:memcache port> -t airtasker-challenge
+
 ## Tests
 
 The codebase comes with a suite of unit tests, which can be run via
