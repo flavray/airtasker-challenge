@@ -97,8 +97,9 @@ the application.
 By default, an in-memory rate-limiter will be used (multiple instances will not
 share the rate limiter). `memcache` can be used to share the rate limiter:
 
+    $ docker run -p 11211:11211 -d memcached:alpine
     $ export STORE_BACKEND=memcache
-    $ export MEMCACHE_CONNECTION_STRING=<memcache host:memcache port>  # e.g: 0.0.0.0:11211
+    $ export MEMCACHE_CONNECTION_STRING=0.0.0.0:11211
     $ make run
 
 ### Running in Docker
@@ -164,7 +165,9 @@ The implementation is backed by [memcache](https://memcached.org), to store and
 distribute atomic counters. This means that multiple web workers can share the
 rate limiter if they connect to the same memcache server(s). I could have used
 Redis, a SQL database, or many other systems. memcached is simple to use and
-deploy, with a lightweight client library.
+deploy, fast (sub-millisecond to retrieve 3,600 keys locally on my laptop with
+the [memcached:alpine](https://hub.docker.com/_/memcached) docker image), with
+a lightweight client library.
 
 I made the conscious decision to allow every request to pass if any issue with
 memcache occurs (e.g: memcache is down, corrupted, etc...). The assumption is
