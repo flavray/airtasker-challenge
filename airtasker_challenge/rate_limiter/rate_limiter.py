@@ -32,9 +32,9 @@ class RateLimiter:
     Buckets are accessed via a `Store` implementation, which can be anything
     that can atomically hold counters (memory, memcache, Redis, SQL, etc...).
 
-    The RateLimiter discards/revokes attemts to acquire the rate limiter when
-    over the limit, this means that requestors have no negative effect to
-    attempt to acquire the rate-limiter even if they are already out of
+    The RateLimiter discards/revokes attempts to acquire the rate limiter when
+    over the limit. This means that there is no negative effect for requestors
+    to attempt to acquire the rate-limiter even if they are already out of
     permits.
     """
 
@@ -88,7 +88,7 @@ class RateLimiter:
         current bucket (effectively attempting to acquire a new permit).
 
         :param requestor: an identifier for a requestor.
-        :param now_s: the current time, in seconds since epoch
+        :param now_s: the current time, in seconds since epoch.
         :returns: the permit count in the current bucket (+ 1 to include the new permit).
         """
         current_key: str = self._store_key(requestor, now_s)
@@ -96,14 +96,14 @@ class RateLimiter:
 
     def _previous_permits(self, requestor: str, now_s: int) -> Dict[int, int]:
         """
-        Return the number of timestamp allowed for the previous time buckets in
+        Return the number of permits allowed for the previous time buckets in
         the configured period of time.
 
         For each bucket in the time window ([now - period; now]), query the
         counter store for the number of permits that were allowed in the bucket.
 
         The current bucket is not queried, it is instead done as part of
-        `_current_permits`.
+        `RateLimiter::_current_permits`.
 
         NOTE: Only returns buckets where a counter is present in the store.
 
@@ -138,7 +138,7 @@ class RateLimiter:
         future uses of the rate limiter.
 
         :param requestor: an identifier for a requestor.
-        :param now_s: the current time, in seconds since epoch
+        :param now_s: the current time, in seconds since epoch.
         """
         current_key: str = self._store_key(requestor, now_s)
         self.store.decr(key=current_key)

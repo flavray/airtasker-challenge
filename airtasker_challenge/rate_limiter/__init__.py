@@ -12,7 +12,8 @@ def rate_limited(permits: int, period_s: int, store: Store):
 
     If a requestor reached their limit of request permits over the given
     period, a HTTP 429 (Too Many Requests) response will be returned,
-    indicating the time (in seconds) the next request can be made.
+    indicating the time (in seconds) to wait until the next request can be
+    made.
 
     :param permits: the number of calls that can be made over a period of time.
     :param period_s: the duration (in seconds) of a period

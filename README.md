@@ -148,8 +148,9 @@ differently (e.g: user api tokens) and easily plugged in the rate limiter.
 
 * The rate limiter implementation is located in
   [airtasker_challenge/rate_limiter](airtasker_challenge/rate_limiter). It
-  contains a Flask route decorator `@rate_limited` that is used to limit access
-  to any Flask route (in our case, `/`).
+  contains a Flask route decorator `@rate_limited` (in
+  [airtasker_challenge/rate_limiter/\_\_init\_\_.py](airtasker_challenge/rate_limiter/__init__.py))
+  that is used to limit access to any Flask route (in our case, `/`).
 
 
 * There is a test suite located in [tests/](tests/), which contains unit tests.
@@ -193,7 +194,7 @@ could become a bottleneck.
 Ways to improve this could be to:
 
 - Cache in-memory counters from buckets that are more than a couple of seconds
-  old (there will be immutable)
+  old (counters do not change once the time bucket they represent passed)
 - Increase the bucket duration (10 seconds? 1 minute? depends on the load).
   This will force to use approximations for the cooldown period, but reduce the
   number of keys to retrieve.
@@ -204,4 +205,4 @@ connection string) is done via environment variables (`STORE_BACKEND`,
 `MEMCACHE_CONNECTION_STRING`). This is easy to set and tweak both in a terminal
 environment and a docker environment, and easy to read from the application.
 This could have been a configuration file, but would have been less explicit
-than environment variables.
+than environment variables. 🙂

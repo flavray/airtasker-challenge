@@ -33,7 +33,7 @@ class MemcacheStore(Store):
     buckets will not change.
 
     If two clients try to acquire a permit for the same key, they will each get
-    a different value. No race conditions.
+    a different value, and different rate limits can apply. No race conditions.
     """
 
     def __init__(self, connection_string: str) -> None:
@@ -49,7 +49,7 @@ class MemcacheStore(Store):
 
     def get_multi(self, keys: List[str]) -> Dict[str, int]:
         """
-        Return the value of the given list of keys.
+        Return the value in memcache for all the given `keys`.
 
         Each key that exists in memcache is returned. Each key is mapped to its
         corresponding value in the output.
